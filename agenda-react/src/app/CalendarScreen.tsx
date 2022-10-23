@@ -45,50 +45,51 @@ export function CalendarScreen() {
         <Button variant="contained" color="primary">
           Novo evento
         </Button>
-        <FormControlLabel control={<Checkbox />} label="Pessoal" />
-        <FormControlLabel control={<Checkbox />} label="Trabalho" />
+        <Box>
+          <FormControlLabel control={<Checkbox />} label="Pessoal" />
+          <FormControlLabel control={<Checkbox />} label="Trabalho" />
+        </Box>
       </Box>
       <Box style={{ flex: "1", display: "flex", flexDirection: "column" }}>
-        <IconButton aria-label="Mês anterior ">
-          <Icon>chevron_left</Icon>
-        </IconButton>
-        Mes
-        <IconButton aria-label="Próximo mês">
-          <Icon>chevron_right</Icon>
-        </IconButton>
-        <IconButton aria-label="Usuário">
-          <Box>
+        <Box>
+          <IconButton aria-label="Mês anterior ">
+            <Icon>chevron_left</Icon>
+          </IconButton>
+          Mes
+          <IconButton aria-label="Próximo mês">
+            <Icon>chevron_right</Icon>
+          </IconButton>
+          <IconButton aria-label="Usuário">
             <Avatar>
               <Icon>person</Icon>
             </Avatar>
-          </Box>
-        </IconButton>
-        <Box>
-          <TableContainer>
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  {DAYS_OF_WEEK.map((day) => (
-                    <TableCell align="center" key={day}>
-                      {day}
+          </IconButton>
+        </Box>
+
+        <TableContainer>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                {DAYS_OF_WEEK.map((day) => (
+                  <TableCell align="center" key={day}>
+                    {day}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {weeks.map((week, i) => (
+                <TableRow key={i}>
+                  {week.map((cell) => (
+                    <TableCell align="center" key={cell.date}>
+                      {cell.date}
                     </TableCell>
                   ))}
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {weeks.map((week, i) => (
-                  <TableRow key={i}>
-                    {week.map((cell) => (
-                      <TableCell align="center" key={cell.date}>
-                        {cell.date}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
     </Box>
   );
