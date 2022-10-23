@@ -10,6 +10,8 @@ import Button from "@material-ui/core/Button";
 import { FormControlLabel, Icon, IconButton, Tab } from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 import Avatar from "@material-ui/core/Avatar";
+import { useEffect, useState } from "react";
+import { getEventsEndpoint, IEvent } from "./backend";
 
 const DAYS_OF_WEEK = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
 
@@ -26,69 +28,75 @@ const useStyles = makeStyles({
 export function CalendarScreen() {
   const classes = useStyles();
   const weeks = generateCalendar(getToday());
+  const firstDate = weeks[0][0].date;
+  const lastDate = weeks[weeks.length - 1][6].date;
+  const [events, setEvents] = useState<IEvent[]>([]);
+
+  useEffect(() => {
+    getEventsEndpoint(firstDate, lastDate).then(setEvents);
+  }, [firstDate, lastDate]);
 
   return (
-    <Box display="flex" height="100%" alignItems="stretch">
-      <Box borderRight="1px solid rgb(224, 224, 224)" width="16em" padding="8px 16px">
+    <Box style={{ display: "flex", height: "100%", alignItems: "stretch" }}>
+      <Box
+        style={{ borderRight: "1px solid rgb(224, 224, 224)", width: "16em", padding: "8px 16px" }}
+      >
         <h2>Agenda React</h2>
         <Button variant="contained" color="primary">
-          Novo Evento
+          Novo evento
         </Button>
-
-        <Box marginTop="64px">
-          <h3>Agendas</h3>
-          <FormControlLabel control={<Checkbox />} label="Pessoal" />
-          <FormControlLabel control={<Checkbox />} label="Trabalho" />
-        </Box>
+        <FormControlLabel control={<Checkbox />} label="Pessoal" />
+        <FormControlLabel control={<Checkbox />} label="Trabalho" />
       </Box>
-      <TableContainer component={"div"}>
-        <Box display="flex" alignItems="center" padding="8px, 16px">
+      <Box style={{ flex: "1", display: "flex", flexDirection: "column" }}>
+        <IconButton aria-label="Mês anterior ">
+          <Icon>chevron_left</Icon>
+        </IconButton>
+        Mes
+        <IconButton aria-label="Próximo mês">
+          <Icon>chevron_right</Icon>
+        </IconButton>
+        <IconButton aria-label="Usuário">
           <Box>
-            <IconButton aria-label="Mês anterior ">
-              <Icon>chevron_left</Icon>
-            </IconButton>
-            <IconButton aria-label="Próximo mês">
-              <Icon>chevron_right</Icon>
-            </IconButton>
-            <Box flex="1" marginLeft="16px" component="h3">
-              Mes
-            </Box>
-          </Box>
-          <IconButton aria-label="Usuário">
             <Avatar>
               <Icon>person</Icon>
             </Avatar>
-          </IconButton>
-        </Box>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              {DAYS_OF_WEEK.map((day) => (
-                <TableCell align="center" key={day}>
-                  {day}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {weeks.map((week, i) => (
-              <TableRow key={i}>
-                {week.map((cell) => (
-                  <TableCell align="center" key={cell.date}>
-                    {cell.date}
-                  </TableCell>
+          </Box>
+        </IconButton>
+        <Box>
+          <TableContainer>
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow>
+                  {DAYS_OF_WEEK.map((day) => (
+                    <TableCell align="center" key={day}>
+                      {day}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {weeks.map((week, i) => (
+                  <TableRow key={i}>
+                    {week.map((cell) => (
+                      <TableCell align="center" key={cell.date}>
+                        {cell.date}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Box>
     </Box>
   );
 }
 
 interface ICalendarCell {
   date: string;
+  events: IEvent[];
 }
 
 function generateCalendar(date: string): ICalendarCell[][] {
@@ -107,7 +115,7 @@ function generateCalendar(date: string): ICalendarCell[][] {
       const monthStr = (currentDay.getMonth() + 1).toString().padStart(2, "0");
       const dayStr = (currentDay.getDate() + 1).toString().padStart(2, "0");
       const isoDate = `${currentDay.getFullYear()}-${monthStr}-${dayStr}`;
-      week.push({ date: isoDate });
+      week.push({ date: isoDate, events: [] });
       currentDay.setDate(currentDay.getDate() + 1);
     }
     weeks.push(week);
