@@ -27,10 +27,10 @@ const useStyles = makeStyles({
 
 export function CalendarScreen() {
   const classes = useStyles();
-  const weeks = generateCalendar(getToday());
+  const [events, setEvents] = useState<IEvent[]>([]);
+  const weeks = generateCalendar(getToday(), events);
   const firstDate = weeks[0][0].date;
   const lastDate = weeks[weeks.length - 1][6].date;
-  const [events, setEvents] = useState<IEvent[]>([]);
 
   useEffect(() => {
     getEventsEndpoint(firstDate, lastDate).then(setEvents);
@@ -88,6 +88,12 @@ export function CalendarScreen() {
                   {week.map((cell) => (
                     <TableCell align="center" key={cell.date}>
                       {cell.date}
+
+                      {cell.events.map((event) => (
+                        <div>
+                          {event.time || ""} {event.desc}
+                        </div>
+                      ))}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -105,7 +111,7 @@ interface ICalendarCell {
   events: IEvent[];
 }
 
-function generateCalendar(date: string): ICalendarCell[][] {
+function generateCalendar(date: string, allEvents: IEvent[]): ICalendarCell[][] {
   const weeks: ICalendarCell[][] = [];
   const jsDate = new Date(date + "T10:00:00");
   const currentMonth = jsDate.getMonth();
@@ -121,7 +127,7 @@ function generateCalendar(date: string): ICalendarCell[][] {
       const monthStr = (currentDay.getMonth() + 1).toString().padStart(2, "0");
       const dayStr = (currentDay.getDate() + 1).toString().padStart(2, "0");
       const isoDate = `${currentDay.getFullYear()}-${monthStr}-${dayStr}`;
-      week.push({ date: isoDate, events: [] });
+      week.push({ date: isoDate, events: allEvents.filter((e) => e.date === isoDate) });
       currentDay.setDate(currentDay.getDate() + 1);
     }
     weeks.push(week);
