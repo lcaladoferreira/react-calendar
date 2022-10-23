@@ -45,28 +45,33 @@ export function CalendarScreen() {
         <Button variant="contained" color="primary">
           Novo evento
         </Button>
-        <Box>
+        <Box style={{ marginTop: "64px" }}>
           <FormControlLabel control={<Checkbox />} label="Pessoal" />
           <FormControlLabel control={<Checkbox />} label="Trabalho" />
         </Box>
       </Box>
       <Box style={{ flex: "1", display: "flex", flexDirection: "column" }}>
-        <Box>
-          <IconButton aria-label="Mês anterior ">
-            <Icon>chevron_left</Icon>
-          </IconButton>
-          Mes
-          <IconButton aria-label="Próximo mês">
-            <Icon>chevron_right</Icon>
-          </IconButton>
-          <IconButton aria-label="Usuário">
-            <Avatar>
-              <Icon>person</Icon>
-            </Avatar>
-          </IconButton>
-        </Box>
-
-        <TableContainer>
+        <TableContainer component={"div"}>
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 16px",
+            }}
+          >
+            <IconButton aria-label="Mês anterior ">
+              <Icon>chevron_left</Icon>
+            </IconButton>
+            <strong>Mês</strong>
+            <IconButton aria-label="Próximo mês">
+              <Icon>chevron_right</Icon>
+            </IconButton>
+            <IconButton aria-label="Usuário">
+              <Avatar>
+                <Icon>person</Icon>
+              </Avatar>
+            </IconButton>
+          </Box>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
