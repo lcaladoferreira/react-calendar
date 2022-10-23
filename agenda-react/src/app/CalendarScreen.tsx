@@ -104,7 +104,9 @@ function generateCalendar(date: string): ICalendarCell[][] {
   do {
     const week: ICalendarCell[] = [];
     for (let i = 0; i < DAYS_OF_WEEK.length; i++) {
-      const isoDate = `${currentDay.getFullYear()}-${currentDay.getMonth()}-${currentDay.getDate()}`;
+      const monthStr = (currentDay.getMonth() + 1).toString().padStart(2, "0");
+      const dayStr = (currentDay.getDate() + 1).toString().padStart(2, "0");
+      const isoDate = `${currentDay.getFullYear()}-${monthStr}-${dayStr}`;
       week.push({ date: isoDate });
       currentDay.setDate(currentDay.getDate() + 1);
     }
