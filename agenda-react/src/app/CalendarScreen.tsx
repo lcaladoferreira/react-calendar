@@ -53,18 +53,26 @@ export function CalendarScreen() {
   const classes = useStyles();
   const [events, setEvents] = useState<IEvent[]>([]);
   const [calendars, setCalendars] = useState<ICalendar[]>([]);
-  const weeks = generateCalendar(getToday(), events, calendars);
+  const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([]);
+  const weeks = generateCalendar(getToday(), events, calendars, calendarsSelected);
   const firstDate = weeks[0][0].date;
   const lastDate = weeks[weeks.length - 1][6].date;
 
   useEffect(() => {
     Promise.all([getCalendarsEndpoint(), getEventsEndpoint(firstDate, lastDate)]).then(
       ([calendars, events]) => {
+        setCalendarsSelected(calendars.map(() => true));
         setCalendars(calendars);
         setEvents(events);
       }
     );
   }, [firstDate, lastDate]);
+
+  function toggleCalendar(i: number) {
+    const newValue = [...calendarsSelected];
+    newValue[i] = !newValue[i];
+    setCalendarsSelected(newValue);
+  }
 
   return (
     <Box style={{ display: "flex", height: "100%", alignItems: "stretch" }}>
@@ -76,8 +84,20 @@ export function CalendarScreen() {
           Novo evento
         </Button>
         <Box style={{ marginTop: "64px" }}>
-          <FormControlLabel control={<Checkbox />} label="Pessoal" />
-          <FormControlLabel control={<Checkbox />} label="Trabalho" />
+          <h3>Agendas</h3>
+          {calendars.map((calendar, i) => (
+            <FormControlLabel
+              key={calendar.id}
+              control={
+                <Checkbox
+                  style={{ color: calendar.color }}
+                  checked={calendarsSelected[i]}
+                  onChange={() => toggleCalendar(i)}
+                />
+              }
+              label={calendar.name}
+            />
+          ))}
         </Box>
       </Box>
       <Box style={{ flex: "1", display: "flex", flexDirection: "column" }}>
@@ -122,7 +142,7 @@ export function CalendarScreen() {
                       {cell.events.map((event) => {
                         const color = event.calendar.color;
                         return (
-                          <button className={classes.event}>
+                          <button key={event.id} className={classes.event}>
                             {event.time && (
                               <>
                                 <Icon style={{ backgroundColor: color, fontSize: "inherit" }}>
@@ -159,21 +179,23 @@ export function CalendarScreen() {
   );
 }
 
+type IEventWithCalendar = IEvent & { calendar: ICalendar };
+
 interface ICalendarCell {
   date: string;
   dayOfMonth: number;
-  events: (IEvent & { calendar: ICalendar })[];
+  events: IEventWithCalendar[];
 }
 
 function generateCalendar(
   date: string,
   allEvents: IEvent[],
-  calendars: ICalendar[]
+  calendars: ICalendar[],
+  calendarsSelected: boolean[]
 ): ICalendarCell[][] {
   const weeks: ICalendarCell[][] = [];
   const jsDate = new Date(date + "T10:00:00");
   const currentMonth = jsDate.getMonth();
-
   const currentDay = new Date(jsDate.valueOf());
   currentDay.setDate(1);
   const dayOfWeek = currentDay.getDay();
@@ -186,15 +208,20 @@ function generateCalendar(
       const dayStr = (currentDay.getDate() + 1).toString().padStart(2, "0");
       const isoDate = `${currentDay.getFullYear()}-${monthStr}-${dayStr}`;
 
+      const events: IEventWithCalendar[] = [];
+      for (const event of allEvents) {
+        if (event.date === isoDate) {
+          const calIndex = calendars.findIndex((cal) => cal.id === event.calendarId);
+          if (calendarsSelected[calIndex]) {
+            events.push({ ...event, calendar: calendars[calIndex] });
+          }
+        }
+      }
+
       week.push({
         dayOfMonth: currentDay.getDate(),
         date: isoDate,
-        events: allEvents
-          .filter((e) => e.date === isoDate)
-          .map((e) => {
-            const calendar = calendars.find((cal) => cal.id === e.calendarId)!;
-            return { ...e, calendar };
-          }),
+        events,
       });
       currentDay.setDate(currentDay.getDate() + 1);
     }
