@@ -12,6 +12,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Avatar from "@material-ui/core/Avatar";
 import { useEffect, useState } from "react";
 import { getEventsEndpoint, IEvent, ICalendar, getCalendarsEndpoint } from "./backend";
+import { getToday } from "./dateFunctions";
 
 const DAYS_OF_WEEK = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
 
@@ -101,14 +102,14 @@ export function CalendarScreen() {
         </Box>
       </Box>
       <Box style={{ flex: "1", display: "flex", flexDirection: "column" }}>
-        <TableContainer component={"div"}>
-          <Box
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "8px 16px",
-            }}
-          >
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 16px",
+          }}
+        >
+          <div>
             <IconButton aria-label="Mês anterior ">
               <Icon>chevron_left</Icon>
             </IconButton>
@@ -116,12 +117,16 @@ export function CalendarScreen() {
             <IconButton aria-label="Próximo mês">
               <Icon>chevron_right</Icon>
             </IconButton>
+          </div>
+          <div style={{ flex: "5", display: "flex", flexDirection: "column" }}>
             <IconButton aria-label="Usuário">
               <Avatar>
                 <Icon>person</Icon>
               </Avatar>
             </IconButton>
-          </Box>
+          </div>
+        </Box>
+        <TableContainer component={"div"}>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -138,7 +143,6 @@ export function CalendarScreen() {
                   {week.map((cell) => (
                     <TableCell align="center" key={cell.date}>
                       <div className={classes.dayOfMonth}>{cell.dayOfMonth}</div>
-
                       {cell.events.map((event) => {
                         const color = event.calendar.color;
                         return (
@@ -230,8 +234,4 @@ function generateCalendar(
   } while (currentDay.getMonth() === currentMonth);
 
   return weeks;
-}
-
-function getToday() {
-  return "2022-10-22";
 }
