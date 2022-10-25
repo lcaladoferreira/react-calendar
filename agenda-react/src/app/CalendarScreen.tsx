@@ -13,6 +13,7 @@ import Avatar from "@material-ui/core/Avatar";
 import { useEffect, useState } from "react";
 import { getEventsEndpoint, IEvent, ICalendar, getCalendarsEndpoint } from "./backend";
 import { getToday } from "./dateFunctions";
+import { useParams } from "react-router-dom";
 
 const DAYS_OF_WEEK = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
 
@@ -51,11 +52,13 @@ const useStyles = makeStyles({
 });
 
 export function CalendarScreen() {
+  const { month } = useParams<{ month: string }>();
+
   const classes = useStyles();
   const [events, setEvents] = useState<IEvent[]>([]);
   const [calendars, setCalendars] = useState<ICalendar[]>([]);
   const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([]);
-  const weeks = generateCalendar(getToday(), events, calendars, calendarsSelected);
+  const weeks = generateCalendar(month + "-01", events, calendars, calendarsSelected);
   const firstDate = weeks[0][0].date;
   const lastDate = weeks[weeks.length - 1][6].date;
 
@@ -113,7 +116,7 @@ export function CalendarScreen() {
             <IconButton aria-label="Mês anterior ">
               <Icon>chevron_left</Icon>
             </IconButton>
-            <strong>Mês</strong>
+            <strong>{month}</strong>
             <IconButton aria-label="Próximo mês">
               <Icon>chevron_right</Icon>
             </IconButton>
