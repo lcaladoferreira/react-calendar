@@ -14,7 +14,7 @@ export const MONTHS = [
 ];
 
 export function getToday() {
-  return "2021-06-17";
+  return "2022-10-26";
 }
 
 export function formatMonth(isoMonth: string) {
